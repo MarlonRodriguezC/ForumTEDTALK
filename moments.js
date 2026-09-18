@@ -2,6 +2,11 @@ window.languageLabels = {
   es: "ES",
   pt: "PT",
 };
+asset: {
+  type: "video",
+  src: "./1-gif_2whFJ4EY.mp4",
+  placement: "background",
+}
 
 window.moments = [
   {
