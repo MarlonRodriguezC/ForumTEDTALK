@@ -246,26 +246,46 @@ function assetFor(moment) {
 function setAsset(moment) {
   window.clearTimeout(assetClearTimer);
   const asset = assetFor(moment);
-  if (asset?.type === "image" && asset.src) {
+
+  // Limpiar video anterior si existe
+  const oldVideo = assetFrame.querySelector("video");
+  if (oldVideo) oldVideo.remove();
+
+  if (asset?.src) {
     const isBackground = asset.placement === "background";
-    const changeImage = assetImage.getAttribute("src") !== asset.src;
-    if (changeImage) {
-      assetFrame.classList.remove("is-visible");
-      assetClearTimer = window.setTimeout(() => {
-        assetFrame.classList.toggle("is-background", isBackground);
-        stage.classList.toggle("has-background-asset", isBackground);
-        assetImage.src = asset.src;
-        assetImage.alt = asset.alt || "";
-        assetFrame.classList.add("is-visible");
-      }, 140);
+    assetFrame.classList.toggle("is-background", isBackground);
+    stage.classList.toggle("has-background-asset", isBackground);
+
+    if (asset.type === "video") {
+      // Ocultar la imagen estática
+      assetImage.style.display = "none";
+      assetImage.removeAttribute("src");
+
+      // Crear y configurar el elemento de video HTML5
+      const videoEl = document.createElement("video");
+      videoEl.src = asset.src;
+      videoEl.autoplay = true;
+      videoEl.loop = true;
+      videoEl.muted = true;
+      videoEl.playsInline = true;
+      videoEl.style.width = "100%";
+      videoEl.style.height = "100%";
+      videoEl.style.objectFit = "cover";
+
+      assetFrame.appendChild(videoEl);
+      assetFrame.classList.add("is-visible");
+      videoEl.play().catch(() => {});
     } else {
-      assetFrame.classList.toggle("is-background", isBackground);
-      stage.classList.toggle("has-background-asset", isBackground);
+      // Si es una imagen normal
+      assetImage.style.display = "block";
+      assetImage.src = asset.src;
+      assetImage.alt = asset.alt || "";
       assetFrame.classList.add("is-visible");
     }
     return;
   }
 
+  // Si el momento no tiene asset
   assetFrame.classList.remove("is-visible");
   assetClearTimer = window.setTimeout(() => {
     if (!assetFrame.classList.contains("is-visible")) {
